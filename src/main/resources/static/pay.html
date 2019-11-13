@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单页面</title>
+    <script src="jquery3.3.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+<div id="div1"></div>
+<div id="app">
+    <table border="1" v-if="orders">
+        <tr>
+            <td>商品编号</td>
+            <td id="id">{{orders.productId}}</td>
+        </tr>
+        <tr>
+            <td>购买数量</td>
+            <td id="name">{{orders.buyCounts}}</td>
+        </tr>
+        <tr>
+            <td>支付金额</td>
+            <td id="price">{{orders.orderAmount}}</td>
+        </tr>
+    </table>
+    <input type="button" @click="goPay" value="去支付宝支付">
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            orders: null
+        },
+        mounted() {
+            var _this = this;
+            $.get('/orders/',{id:this.getUrlKey('id')},function (msg) {
+                _this.orders = msg;
+            });
+        },
+        methods: {
+            goPay() {
+                $.post("/alipay/",{oid:this.orders.id},function (msg) {
+                    $("#div1").html(msg);
+                })
+            },
+            getUrlKey(name) {
+                return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.href) || [, ""])[1].replace(/\+/g, '%20')) || null
+            }
+        }
+    })
+</script>
+</body>
+</html>

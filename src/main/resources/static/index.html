@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单页面</title>
+    <script src="jquery3.3.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+<div id="app">
+    <table border="1">
+        <tr>
+            <td>商品编号</td>
+            <td>商品名称</td>
+            <td>商品价格</td>
+            <td>购买数量</td>
+            <td>操作</td>
+        </tr>
+        <tr v-for="(p,index) in products" :key="index">
+            <td>{{p.id}}</td>
+            <td>{{p.name}}</td>
+            <td>{{p.price}}</td>
+            <td><input type="text" v-model="num[index]"></td>
+            <td><input type="button" value="购买" @click="goBuy(index)"></td>
+        </tr>
+    </table>
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            products: [],
+            num:[]
+        },
+        methods: {
+            goBuy(index) {
+                var orderAmount = this.products[index].price * this.num[index];
+                var productId = this.products[index].id;
+                var buyCounts = this.num[index];
+                $.post('/orders/',{orderAmount:orderAmount,productId:productId,buyCounts:buyCounts},function (msg) {
+                    if (msg.status == 200) {
+                        window.location.href = '/pay.html?id='+msg.obj;
+                    }
+                });
+            }
+        },
+        mounted() {
+            var _this = this;
+            $.get('/products', function (msg) {
+                _this.products = msg;
+                _this.num = [];
+                _this.products.forEach(function (p) {
+                    _this.num.push(1);
+                })
+            });
+        }
+    })
+</script>
+</body>
+</html>
